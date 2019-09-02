@@ -7,7 +7,7 @@ public class Post {
     public String title;
     @SerializedName("author")
     public String author;
-    @SerializedName("id")
+    @SerializedName("_id")
     public String id;
     @SerializedName("body")
     public String body;
@@ -40,5 +40,15 @@ public class Post {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", id='" + id + '\'' +
+                ", body='" + body + '\'' +
+                '}' + "\n";
     }
 }
