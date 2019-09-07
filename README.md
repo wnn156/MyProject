@@ -1,1 +1,3 @@
 # MyProject
+
+20190907 : node.js 에서 router를 분리 시켜야 됐다. "Router.use() requires a middleware function but got a" 에러 해결중...
