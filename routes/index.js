@@ -1,15 +1,16 @@
 module.exports = function (app, Post) {
+  var express = require('express');
+  var router = express.Router();
+
   // GET ALL BOOKS
-  app.get('/test/posts', function (req, res) {
+  router.get('/test/posts', function (req, res) {
     Post.find(function (err, posts) {
       if (err) return res.status(500).send({ error: 'database failure' });
       res.json(posts);
     })
   });
-
-
   // CREATE BOOK
-  app.post('/test/posts', function (req, res) {
+  router.post('/test/posts', function (req, res) {
     var post = new Post();
     post.title = req.body.title;
     post.author = req.body.author;
@@ -26,6 +27,9 @@ module.exports = function (app, Post) {
 
     });
   });
+  return router;
+}
+
 
   // // GET SINGLE BOOK
   // app.get('/api/books/:book_id', function (req, res) {
@@ -73,5 +77,3 @@ module.exports = function (app, Post) {
   //     res.json({ message: 'book updated' });
   //   })
   // });
-
-}

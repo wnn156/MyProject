@@ -1,9 +1,11 @@
 // [LOAD PACKAGES]
 var express     = require('express');
 var app         = express();
+
 var bodyParser  = require('body-parser');
 var mongoose    = require('mongoose');
 var Post = require('./models/post');
+var User = require('./models/user');
 
 // [CONFIGURE APP TO USE bodyParser]
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -13,7 +15,10 @@ app.use(bodyParser.json());
 var port = process.env.PORT || 8080;
 
 // [CONFIGURE ROUTER]
-var router = require('./routes')(app, Post)
+var routerPost = require('./routes/index.js')(app, Post);
+var routerUser = require('./routes/users.js')(app, User);
+app.use('/', routerPost);
+app.use('/users', routerUser);
 
 // [RUN SERVER]
 var server = app.listen(port, function(){

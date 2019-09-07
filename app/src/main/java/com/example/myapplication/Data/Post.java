@@ -12,6 +12,11 @@ public class Post {
     @SerializedName("body")
     public String body;
 
+    public Post(){
+        title = "default";
+        author = "default";
+        body = "default";
+    }
     public Post(String title, String author, String body){
         this.title = title;
         this.author = author;

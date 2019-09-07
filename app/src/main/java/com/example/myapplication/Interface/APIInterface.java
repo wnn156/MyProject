@@ -1,6 +1,7 @@
 package com.example.myapplication.Interface;
 
 import com.example.myapplication.Data.Post;
+import com.example.myapplication.Data.User;
 
 import java.util.ArrayList;
 
@@ -14,12 +15,18 @@ public interface APIInterface {
 
     final String Base_URL = "http://35.208.218.32:3000/";
 
-    @GET("/test/{data}")
-    Call<ArrayList<Post>> doGetListResources(
-            @Path("data") String data
-    );
+    @GET("/test/posts")
+    Call<ArrayList<Post>> getListPosts();
+
+    @GET("/test/users")
+    Call<ArrayList<User>> getListUsers();
+
+    @GET("/test/users/{user}")
+    Call<User> getUser(@Path("user")String id);
 
     @POST("test/posts")
     Call<Post> createPost(@Body Post post);
 
+    @POST("test/users")
+    Call<User> createUser(@Body User user);
 }
