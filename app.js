@@ -15,9 +15,9 @@ app.use(bodyParser.json());
 var port = process.env.PORT || 8080;
 
 // [CONFIGURE ROUTER]
-var routerPost = require('./routes/index.js')(app, Post);
+var routerPost = require('./routes/')(app, Post);
 var routerUser = require('./routes/users.js')(app, User);
-app.use('/', routerPost);
+app.use('/posts', routerPost);
 app.use('/users', routerUser);
 
 // [RUN SERVER]
