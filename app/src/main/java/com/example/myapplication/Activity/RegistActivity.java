@@ -1,5 +1,6 @@
 package com.example.myapplication.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -51,33 +52,44 @@ public class RegistActivity extends AppCompatActivity {
         regist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                user.setId(id.getText().toString());
+                user.setPw(pw.getText().toString());
                 Call<User> call = retroClient.apiService.getUser(user.id); // 이미 있는 아이디 인가?
                 call.enqueue(new Callback<User>() {
                     @Override
                     public void onResponse(Call<User> call, Response<User> response) { // 이미 있는 아이디
-                        Toast.makeText(RegistActivity.this, "이미 존재하는 ID 입니다.", Toast.LENGTH_SHORT).show();
+                        if(response.body() == null){
+                            user.setName(name.getText().toString());
+                            Call<User> call1 = retroClient.apiService.createUser(user);
+                            call1.enqueue(new Callback<User>() {
+                                @Override
+                                public void onResponse(Call<User> call, Response<User> response) {
+                                    Log.d("regist", "onResponse: " + response);
+                                    Toast.makeText(RegistActivity.this, "message : " + response.message() + "\n" +
+                                            "body : " + response.body() + "\n" +
+                                            "isSuccessful : " + response.isSuccessful(), Toast.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent();
+                                    intent.putExtra("user",user);
+                                    setResult(RESULT_OK, intent);
+                                    finish();
+                                }
+
+                                @Override
+                                public void onFailure(Call<User> call, Throwable t) {
+                                    call.cancel();
+                                }
+                            }); 
+                        }
+                        else{
+                            Toast.makeText(RegistActivity.this, "Id is already exist..", Toast.LENGTH_SHORT).show();
+                        }
                     }
+                            
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) { // 없는 아이디
-                        user.setName(name.getText().toString());
-                        Call<User> call1 = retroClient.apiService.createUser(user);
-                        call1.enqueue(new Callback<User>() {
-                            @Override
-                            public void onResponse(Call<User> call, Response<User> response) {
-                                Log.d("regist", "onResponse: " + response);
-                                Toast.makeText(RegistActivity.this, "message : " + response.message() + "\n" +
-                                        "body : " + response.body() + "\n" +
-                                        "isSuccessful : " + response.isSuccessful(), Toast.LENGTH_SHORT).show();
-
-                            }
-
-                            @Override
-                            public void onFailure(Call<User> call, Throwable t) {
-                                call.cancel();
-                            }
-                        });
+                        Toast.makeText(RegistActivity.this, "Server Error!!!", Toast.LENGTH_SHORT).show();
                     }
                 });
             }

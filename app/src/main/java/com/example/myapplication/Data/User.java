@@ -21,6 +21,10 @@ public class User implements Parcelable {
         id = null;
         pw = null;
     }
+    public User(String id, String pw){
+        this.id = id;
+        this.pw = pw;
+    }
 
     public User(String _id, String name, String id, String pw) {
         this._id = _id;
@@ -91,5 +95,15 @@ public class User implements Parcelable {
         parcel.writeString(name);
         parcel.writeString(id);
         parcel.writeString(pw);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                ", id='" + id + '\'' +
+                ", _id='" + _id + '\'' +
+                ", pw='" + pw + '\'' +
+                '}';
     }
 }

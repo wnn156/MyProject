@@ -15,18 +15,18 @@ public interface APIInterface {
 
     final String Base_URL = "http://35.208.218.32:3000/";
 
-    @GET("/test/posts")
+    @GET("posts/test/posts")
     Call<ArrayList<Post>> getListPosts();
 
-    @GET("/test/users")
+    @GET("users/test/users")
     Call<ArrayList<User>> getListUsers();
 
-    @GET("/test/users/{user}")
+    @GET("users/test/users/{user}")
     Call<User> getUser(@Path("user")String id);
 
-    @POST("test/posts")
+    @POST("posts/test/posts")
     Call<Post> createPost(@Body Post post);
 
-    @POST("test/users")
+    @POST("users/test/users")
     Call<User> createUser(@Body User user);
 }

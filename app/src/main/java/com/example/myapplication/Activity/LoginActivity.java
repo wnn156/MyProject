@@ -2,6 +2,7 @@ package com.example.myapplication.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.Data.User;
+import com.example.myapplication.Interface.RetroClient;
 import com.example.myapplication.R;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -26,6 +28,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
     SignInButton Google_Login;
     private int REGIST = 3000;
@@ -37,6 +43,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private int requestCode;
     private int resultCode;
     private Intent data;
+    private User user;
+    private RetroClient retroClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +54,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         } catch (NullPointerException e) {
         }
         setContentView(R.layout.activity_login);
+
+
+        retroClient = RetroClient.getInstance(this).createBaseApi();
+
 
         ID = findViewById(R.id.idEditText);
         PW = findViewById(R.id.pwEditText);
@@ -76,7 +88,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 String id = ID.getText().toString();
                 String pw = PW.getText().toString();
                 if(id != null && pw != null){
-                    User user = new User();
+                    user = new User();
                     user.setId(id);
                     user.setPw(pw);
                     Intent intent = new Intent(LoginActivity.this, RegistActivity.class);
@@ -95,8 +107,43 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String id = ID.getText().toString();
-                String pw = PW.getText().toString();
+                final String id = ID.getText().toString();
+                final String pw = PW.getText().toString();
+
+                user = new User(id,pw);
+
+                Call<User> call = retroClient.apiService.getUser(id);
+                call.enqueue(new Callback<User>() {
+                    @Override
+                    public void onResponse(Call<User> call, Response<User> response) {
+                        Log.d("login", "onResponse: " + response.body());
+                        Log.d("login", "onResponse: " + user);
+                        if(response.body() == null){
+                            Log.d("logd", "onResponse: " + response.body());
+                            call.cancel();
+                            Toast.makeText(LoginActivity.this, "Id or Pw wrong!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Log.d("???", "onResponse: 여기까진 옴");
+
+                        if(response.body().getId().equals(user.getId())&& response.body().getPw().equals(user.getPw())){
+                            user = response.body();
+                            Toast.makeText(LoginActivity.this, "로그인 성공", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                        else{
+                            Toast.makeText(LoginActivity.this, "Id or Pw wrong!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<User> call, Throwable t) {
+                        Toast.makeText(LoginActivity.this, "Server error...", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
             }
         });
     }
@@ -116,7 +163,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 Toast.makeText(this, "Fail login...", Toast.LENGTH_SHORT).show();
             }
         } else if (requestCode == REGIST) {
-
+            user = data.getParcelableExtra("user");
         }
     }
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct){
