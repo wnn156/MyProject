@@ -5,7 +5,7 @@ module.exports = function (app, User) {
   router.get('/test/users', function (req, res) {
     User.find(function (err, users) {
       if (err) return res.status(500).send({ error: 'database failure' });
-      console.log(users);
+      console.log("\n" + users + "\n");
       res.json(users);
     })
   });
@@ -15,7 +15,7 @@ module.exports = function (app, User) {
     User.findOne({id: req.params.id}, function(err, user){
       if(err) return res.status(500).json({error: err});
       if(!user) return res.status(404).json({error: 'user not found'});
-      console.log(user);
+      console.log("\n" + user + "\n" );
       res.json(user);
     })
   });
@@ -29,7 +29,7 @@ module.exports = function (app, User) {
 
     user.save(function (err) {
       if (err) {
-        console.error(err);
+        console.error("\n" + err + "\n" );
         res.json({ result: 0 });
         return;
       }
