@@ -6,6 +6,7 @@ module.exports = function (app, Post) {
   router.get('/test/posts', function (req, res) {
     Post.find(function (err, posts) {
       if (err) return res.status(500).send({ error: 'database failure' });
+      console.log(posts);
       res.json(posts);
     })
   });
@@ -23,6 +24,7 @@ module.exports = function (app, Post) {
         return;
       }
 
+      console.log(post);
       res.json({ result: 1 });
 
     });

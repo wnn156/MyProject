@@ -36,14 +36,6 @@
                 android:hint="제목"
                 android:textColorHint="#42000000" />
 
-            <EditText
-                android:id="@+id/authorEdit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
-                android:layout_marginRight="24dp"
-                android:hint="작성자"
-                android:textColorHint="#42000000" />
 
 
             <EditText

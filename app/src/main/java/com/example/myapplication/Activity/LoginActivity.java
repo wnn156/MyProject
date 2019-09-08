@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.Data.User;
 import com.example.myapplication.Interface.RetroClient;
+import com.example.myapplication.Interface.SharedPreference;
 import com.example.myapplication.R;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -46,6 +47,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private User user;
     private RetroClient retroClient;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +57,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         }
         setContentView(R.layout.activity_login);
 
+
+        User user1 = SharedPreference.getAttribute(LoginActivity.this);
+        if(user1 != null){
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
         retroClient = RetroClient.getInstance(this).createBaseApi();
 
@@ -124,11 +133,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             Toast.makeText(LoginActivity.this, "Id or Pw wrong!", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        Log.d("???", "onResponse: 여기까진 옴");
 
                         if(response.body().getId().equals(user.getId())&& response.body().getPw().equals(user.getPw())){
                             user = response.body();
                             Toast.makeText(LoginActivity.this, "로그인 성공", Toast.LENGTH_SHORT).show();
+                            SharedPreference.setAttribute(LoginActivity.this, user);
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
@@ -166,7 +175,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             user = data.getParcelableExtra("user");
         }
     }
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct){
+    private void firebaseAuthWithGoogle(final GoogleSignInAccount acct){
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(),null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -176,9 +185,32 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             Toast.makeText(LoginActivity.this, "인증 실패", Toast.LENGTH_SHORT).show();
                         }else{
                             Toast.makeText(LoginActivity.this, "구글 로그인 인증 성공", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
+                            final User user = new User();
+                            user.setId(acct.getEmail());
+                            user.setName(acct.getDisplayName());
+                            SharedPreference.setAttribute(LoginActivity.this, user);
+
+                            Call<User> call1 = retroClient.apiService.createUser(user);
+                            call1.enqueue(new Callback<User>() {
+                                @Override
+                                public void onResponse(Call<User> call, Response<User> response) {
+                                    Log.d("regist", "onResponse: " + response);
+                                    Toast.makeText(LoginActivity.this, "message : " + response.message() + "\n" +
+                                            "body : " + response.body() + "\n" +
+                                            "isSuccessful : " + response.isSuccessful(), Toast.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+
+                                @Override
+                                public void onFailure(Call<User> call, Throwable t) {
+                                    call.cancel();
+                                }
+                            });
+
+
                         }
                     }
                 });

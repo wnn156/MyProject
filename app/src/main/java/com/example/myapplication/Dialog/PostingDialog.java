@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.example.myapplication.Data.Post;
+import com.example.myapplication.Data.User;
 import com.example.myapplication.R;
 
 public class PostingDialog extends Dialog implements View.OnClickListener {
@@ -29,18 +30,18 @@ public class PostingDialog extends Dialog implements View.OnClickListener {
 
 
     private Context context;
-
+    private User me;
     private EditText titleEdit;
-    private EditText authorEdit;
     private EditText bodyEdit;
 
     private TextView cancelTv;
     private TextView searchTv;
 
 
-    public PostingDialog(@NonNull Context context) {
+    public PostingDialog(@NonNull Context context, User me) {
         super(context);
         this.context = context;
+        this.me = me;
     }
 
 
@@ -51,7 +52,6 @@ public class PostingDialog extends Dialog implements View.OnClickListener {
         setContentView(LAYOUT);
 
         titleEdit =  findViewById(R.id.titleEdit);
-        authorEdit =  findViewById(R.id.authorEdit);
         bodyEdit =  findViewById(R.id.bodyEdit);
 
         cancelTv = (TextView) findViewById(R.id.findPwDialogCancelTv);
@@ -59,7 +59,6 @@ public class PostingDialog extends Dialog implements View.OnClickListener {
 
         cancelTv.setOnClickListener(this);
         searchTv.setOnClickListener(this);
-
     }
 
     @Override
@@ -73,7 +72,7 @@ public class PostingDialog extends Dialog implements View.OnClickListener {
                 Post post = new Post();
 
                 post.setTitle(titleEdit.getText().toString());
-                post.setAuthor(authorEdit.getText().toString());
+                post.setAuthor(me.getName());
                 post.setBody(bodyEdit.getText().toString());
 
                 dialogListener.onPositiveClicked(post);

@@ -14,8 +14,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.myapplication.Adapter.PostRecyclerAdapter;
 import com.example.myapplication.Data.Post;
+import com.example.myapplication.Data.User;
 import com.example.myapplication.Dialog.PostingDialog;
 import com.example.myapplication.Interface.RetroClient;
+import com.example.myapplication.Interface.SharedPreference;
 import com.example.myapplication.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -30,6 +32,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private User me;
     private long time= 0;
 
     int i = 1;
@@ -55,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        me = SharedPreference.getAttribute(MainActivity.this);
+
         fab = findViewById(R.id.fab);
         fab.setImageDrawable(getResources().getDrawable(R.drawable.plus, getApplicationContext().getTheme()));
         fab.setOnClickListener(new View.OnClickListener() {
@@ -64,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                  Create new user
                  **/
                 System.out.println("On fab onclick");
-                PostingDialog dialog = new PostingDialog(view.getContext());
+                PostingDialog dialog = new PostingDialog(view.getContext(), me);
                 dialog.setDialogListener(new PostingDialog.MyDialogListener() {
                     @Override
                     public void onPositiveClicked(Post post) {
@@ -78,6 +83,25 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(MainActivity.this, "message : " + response.message() + "\n" +
                                         "body : " + response.body() + "\n" +
                                         "isSuccessful : " + response.isSuccessful(), Toast.LENGTH_SHORT).show();
+
+                                final Call<ArrayList<Post>> call1 = retroClient.apiService.getListPosts();
+                                call1.enqueue(new Callback<ArrayList<Post>>() {
+                                    @Override
+                                    public void onResponse(Call<ArrayList<Post>> call, Response<ArrayList<Post>> response) {
+                                        if (response.isSuccessful()) {
+                                            adapter.refreshData(response.body());
+                                            adapter.notifyDataSetChanged();
+                                        } else {
+                                            Log.d(TAG, "onResponse: Error");
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<ArrayList<Post>> call, Throwable t) {
+                                        Toast.makeText(MainActivity.this, "onFailure:" + t.toString(), Toast.LENGTH_SHORT).show();
+                                        call1.cancel();
+                                    }
+                                });
                             }
 
                             @Override
